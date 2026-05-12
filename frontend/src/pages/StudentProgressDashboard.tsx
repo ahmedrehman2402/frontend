@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { 
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
   LineChart, Line
 } from 'recharts';
@@ -29,9 +29,9 @@ interface QuizScore {
 const StudentProgressDashboard = () => {
   const userStr = localStorage.getItem("user");
   const user = userStr && userStr !== "undefined" ? JSON.parse(userStr) : null;
-  const [coursesData, setCoursesData] = useState<{name: string, progress: number}[]>([]);
+  const [coursesData, setCoursesData] = useState<{ name: string, progress: number }[]>([]);
   const [rawEnrolledCourses, setRawEnrolledCourses] = useState<EnrolledCourse[]>([]);
-  const [quizData, setQuizData] = useState<{date: string, score: number}[]>([]);
+  const [quizData, setQuizData] = useState<{ date: string, score: number }[]>([]);
   const [streak, setStreak] = useState(0);
   const [hasMarkedToday, setHasMarkedToday] = useState(true);
   const [isMarking, setIsMarking] = useState(false);
@@ -44,7 +44,7 @@ const StudentProgressDashboard = () => {
     const pingActiveStatus = async () => {
       const token = localStorage.getItem("token");
       if (token) {
-        fetch(`http://localhost:5000/api/users/ping`, {
+        fetch(`https://backend-production-b478c.up.railway.app/api/users/ping`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const StudentProgressDashboard = () => {
         }).catch(err => console.error("Failed to ping active status:", err));
       }
     };
-    
+
     pingActiveStatus();
     const interval = setInterval(pingActiveStatus, 5 * 60 * 1000);
     return () => clearInterval(interval);
@@ -70,26 +70,26 @@ const StudentProgressDashboard = () => {
         }
 
         const [res, streakRes] = await Promise.all([
-          fetch("http://localhost:5000/api/users/me/dashboard", {
+          fetch("https://backend-production-b478c.up.railway.app/api/users/me/dashboard", {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch("http://localhost:5000/api/users/me/attendance-streak", {
+          fetch("https://backend-production-b478c.up.railway.app/api/users/me/attendance-streak", {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);
-        
+
         if (!res.ok) throw new Error("Failed to fetch dashboard data");
         const user = await res.json();
-        
+
         // Sync local storage user state to ensure LiveChat widget has latest enrolledCourses
         const userStr = localStorage.getItem("user");
         if (userStr) {
           let localUser = null;
-        try {
-          if (userStr && userStr !== "undefined") {
-            localUser = JSON.parse(userStr);
-          }
-        } catch(e) {}
+          try {
+            if (userStr && userStr !== "undefined") {
+              localUser = JSON.parse(userStr);
+            }
+          } catch (e) { }
           localUser.enrolledCourses = user.enrolledCourses;
           localStorage.setItem("user", JSON.stringify(localUser));
         }
@@ -110,7 +110,7 @@ const StudentProgressDashboard = () => {
             }, 1000);
           }
         }
-        
+
         const cData = user.enrolledCourses.map((c: EnrolledCourse) => ({
           name: c.courseId?.title || "Unknown",
           progress: c.progress
@@ -124,7 +124,7 @@ const StudentProgressDashboard = () => {
         }));
         // Sort chronologically
         setQuizData(qData);
-        
+
       } catch (err: any) {
         toast({ title: "Error", description: err.message, variant: "destructive" });
       } finally {
@@ -141,28 +141,28 @@ const StudentProgressDashboard = () => {
       toast({ title: "No Courses", description: "You must be enrolled in an active course to mark attendance." });
       return;
     }
-    
+
     // Default to the first enrolled course to map the attendance record
     const targetCourseId = (validCourse.courseId as any)._id || validCourse.courseId;
-    
+
     try {
       setIsMarking(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/courses/${targetCourseId}/attendance`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/courses/${targetCourseId}/attendance`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      
+
       if (!res.ok) {
         if (data.message === "Attendance already marked for today") {
-           setHasMarkedToday(true);
-           toast({ title: "Attendance Checked", description: "You've already marked attendance today! 🔥" });
-           return;
+          setHasMarkedToday(true);
+          toast({ title: "Attendance Checked", description: "You've already marked attendance today! 🔥" });
+          return;
         }
         throw new Error(data.message || "Failed to mark attendance");
       }
-      
+
       toast({ title: "Success", description: "Daily attendance recorded! Streak updated 🔥" });
       setStreak(s => s + 1);
       setHasMarkedToday(true);
@@ -184,16 +184,16 @@ const StudentProgressDashboard = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-2 tracking-tight">Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}! 👋</h1>
           <p className="text-muted-foreground text-lg">Your Learning Overview</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full font-bold">
             <Flame className="h-5 w-5 fill-current" />
             <span>{streak} Day Streak</span>
           </div>
-          <Button 
-            variant={hasMarkedToday ? "secondary" : "default"} 
+          <Button
+            variant={hasMarkedToday ? "secondary" : "default"}
             className={!hasMarkedToday ? "animate-pulse rounded-full" : "rounded-full"}
-            disabled={isMarking || rawEnrolledCourses.length === 0 || hasMarkedToday} 
+            disabled={isMarking || rawEnrolledCourses.length === 0 || hasMarkedToday}
             onClick={handleMarkAttendance}
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -224,8 +224,8 @@ const StudentProgressDashboard = () => {
                     <span className="text-muted-foreground">{rawEnrolledCourses[0].progress}%</span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-                    <div 
-                      className="h-full rounded-full progress-gradient" 
+                    <div
+                      className="h-full rounded-full progress-gradient"
                       style={{ width: `${rawEnrolledCourses[0].progress}%` }}
                     />
                   </div>
@@ -257,8 +257,8 @@ const StudentProgressDashboard = () => {
                     </Bar>
                     <defs>
                       <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#34d399" stopOpacity={0.8}/>
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#34d399" stopOpacity={0.8} />
                       </linearGradient>
                     </defs>
                   </BarChart>
@@ -319,7 +319,7 @@ const StudentProgressDashboard = () => {
               <Button variant="outline" size="icon" className="rounded-full w-8 h-8"><ChevronRight className="h-4 w-4" /></Button>
             </div>
           </div>
-          
+
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {rawEnrolledCourses.map((ec, idx) => (
               <div key={idx} className="rounded-3xl border border-border glass-panel p-4 flex flex-col hover:shadow-card-hover transition-all">
@@ -329,18 +329,18 @@ const StudentProgressDashboard = () => {
                   </div>
                 </div>
                 <h3 className="font-bold text-lg mb-2 truncate">{ec.courseId.title}</h3>
-                
+
                 <div className="flex justify-between items-center text-sm mb-2 text-muted-foreground">
                   <div className="flex gap-1 text-yellow-400">
                     {'★★★★☆'}
                   </div>
                   <span className="font-semibold">{ec.progress}%</span>
                 </div>
-                
+
                 <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden mb-4">
                   <div className="h-full rounded-full progress-gradient" style={{ width: `${ec.progress}%` }} />
                 </div>
-                
+
                 <Button className="w-full rounded-full mt-auto font-semibold" onClick={() => navigate(`/courses/${ec.courseId._id}`)}>
                   Continue
                 </Button>

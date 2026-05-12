@@ -66,13 +66,13 @@ const Dashboard = () => {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/users/me/dashboard", {
+      const res = await fetch("https://backend-production-b478c.up.railway.app/api/users/me/dashboard", {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (!res.ok) throw new Error("Failed to fetch dashboard data");
       const user = await res.json();
-      
+
       setUserName(user.name);
       setEnrolledCourses(user.enrolledCourses || []);
       setQuizScores(user.quizScores || []);
@@ -93,8 +93,8 @@ const Dashboard = () => {
 
   const completedCount = enrolledCourses.filter(c => c.progress === 100).length;
   // fake average logic
-  const avgScore = quizScores.length > 0 
-    ? Math.round((quizScores.reduce((acc, q) => acc + (q.score / q.totalQuestions) * 100, 0)) / quizScores.length) 
+  const avgScore = quizScores.length > 0
+    ? Math.round((quizScores.reduce((acc, q) => acc + (q.score / q.totalQuestions) * 100, 0)) / quizScores.length)
     : 0;
 
   const stats = [
@@ -107,14 +107,14 @@ const Dashboard = () => {
   return (
     <main className="bg-background py-8">
       {activeQuizCourse && (
-        <AIQuizModal 
+        <AIQuizModal
           courseId={activeQuizCourse.id}
           courseTitle={activeQuizCourse.title}
           category={activeQuizCourse.category}
           onClose={() => setActiveQuizCourse(null)}
           onSuccess={(score) => {
-             toast({ title: `Quiz Complete! You scored ${score}.` });
-             fetchDashboardData(); // refresh dashboard to see progress update
+            toast({ title: `Quiz Complete! You scored ${score}.` });
+            fetchDashboardData(); // refresh dashboard to see progress update
           }}
         />
       )}
@@ -168,49 +168,50 @@ const Dashboard = () => {
                   const course = enrollee.courseId;
 
                   return (
-                  <div key={enrollee._id} className="rounded-xl border border-border bg-card p-5 shadow-card flex flex-col md:flex-row gap-5 items-center">
-                    {course.thumbnail ? (
-                      <img src={`http://localhost:5000${course.thumbnail}`} alt="" className="w-24 h-24 rounded-lg object-cover" />
-                    ) : (
-                      <div className="w-24 h-24 bg-secondary rounded-lg flex items-center justify-center shrink-0">
-                        <BookOpen className="w-8 h-8 text-muted-foreground/30" />
-                      </div>
-                    )}
-
-                    <div className="flex-1 w-full">
-                      <div className="mb-2 flex items-start justify-between">
-                        <div>
-                          <p className="font-bold text-lg leading-tight">{course.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            <Clock className="mr-1 inline h-3 w-3" />
-                            {course.duration} total • Taught by {course.instructor}
-                          </p>
+                    <div key={enrollee._id} className="rounded-xl border border-border bg-card p-5 shadow-card flex flex-col md:flex-row gap-5 items-center">
+                      {course.thumbnail ? (
+                        <img src={`https://backend-production-b478c.up.railway.app${course.thumbnail}`} alt="" className="w-24 h-24 rounded-lg object-cover" />
+                      ) : (
+                        <div className="w-24 h-24 bg-secondary rounded-lg flex items-center justify-center shrink-0">
+                          <BookOpen className="w-8 h-8 text-muted-foreground/30" />
                         </div>
-                        {enrollee.progress === 100 ? (
-                          <Badge className="bg-success/10 text-success whitespace-nowrap">
-                            <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
-                          </Badge>
-                        ) : (
-                          <span className="text-sm font-bold text-primary">{enrollee.progress}%</span>
-                        )}
-                      </div>
-                      <Progress value={enrollee.progress} className="h-2 mb-3" />
-                      
-                      <div className="flex justify-between items-center">
-                        <p className="text-xs text-muted-foreground font-medium">Last accessed: {new Date(enrollee.lastAccessed).toLocaleDateString()}</p>
-                        <div className="flex items-center gap-2">
-                          {enrollee.progress < 100 ? (
-                            <Button size="sm" onClick={() => setActiveQuizCourse({ id: course._id, title: course.title, category: "Web Development" })} className="bg-cta-gradient font-bold shadow-md hover:shadow-lg transition-all">
-                              <Bot className="w-4 h-4 mr-2" /> Take AI Quiz
-                            </Button>
+                      )}
+
+                      <div className="flex-1 w-full">
+                        <div className="mb-2 flex items-start justify-between">
+                          <div>
+                            <p className="font-bold text-lg leading-tight">{course.title}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              <Clock className="mr-1 inline h-3 w-3" />
+                              {course.duration} total • Taught by {course.instructor}
+                            </p>
+                          </div>
+                          {enrollee.progress === 100 ? (
+                            <Badge className="bg-success/10 text-success whitespace-nowrap">
+                              <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
+                            </Badge>
                           ) : (
-                            <CertificateGenerator studentName={userName} courseName={course.title} completionDate={enrollee.lastAccessed} />
+                            <span className="text-sm font-bold text-primary">{enrollee.progress}%</span>
                           )}
+                        </div>
+                        <Progress value={enrollee.progress} className="h-2 mb-3" />
+
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs text-muted-foreground font-medium">Last accessed: {new Date(enrollee.lastAccessed).toLocaleDateString()}</p>
+                          <div className="flex items-center gap-2">
+                            {enrollee.progress < 100 ? (
+                              <Button size="sm" onClick={() => setActiveQuizCourse({ id: course._id, title: course.title, category: "Web Development" })} className="bg-cta-gradient font-bold shadow-md hover:shadow-lg transition-all">
+                                <Bot className="w-4 h-4 mr-2" /> Take AI Quiz
+                              </Button>
+                            ) : (
+                              <CertificateGenerator studentName={userName} courseName={course.title} completionDate={enrollee.lastAccessed} />
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )})}
+                  )
+                })}
               </div>
             </motion.div>
           </div>
@@ -219,11 +220,11 @@ const Dashboard = () => {
           <div className="space-y-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-xl border border-border bg-card p-5 shadow-card">
               <h3 className="mb-4 font-display font-semibold flex items-center gap-2">
-                 <Award className="h-5 w-5 text-primary"/> AI Quiz History
+                <Award className="h-5 w-5 text-primary" /> AI Quiz History
               </h3>
               <div className="space-y-4">
                 {quizScores.length === 0 && <p className="text-sm text-muted-foreground">No quizzes taken yet.</p>}
-                
+
                 {quizScores.slice().reverse().map((quiz, idx) => (
                   <div key={quiz._id || idx} className="flex items-center justify-between border-b border-border pb-3 last:border-0 last:pb-0">
                     <div>

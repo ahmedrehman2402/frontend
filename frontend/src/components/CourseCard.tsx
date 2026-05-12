@@ -26,7 +26,7 @@ const CourseCard = ({ course, index = 0 }: CourseCardProps) => {
         <div className="overflow-hidden rounded-2xl border border-border glass-panel shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
           <div className="relative aspect-video bg-hero-gradient flex items-center justify-center overflow-hidden">
             {course.thumbnail ? (
-              <img src={`http://localhost:5000${course.thumbnail}`} alt={course.title} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={`https://backend-production-b478c.up.railway.app${course.thumbnail}`} alt={course.title} className="absolute inset-0 h-full w-full object-cover" />
             ) : (
               <>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />

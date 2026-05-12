@@ -13,26 +13,26 @@ const LiveChat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  
+
   // Track user dynamically via route changes
   const [user, setUser] = useState<any>(null);
   const location = useLocation();
-  
+
   const { data: courses } = useCourses();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     try {
       setUser(userStr && userStr !== "undefined" ? JSON.parse(userStr) : null);
-    } catch(e) {
+    } catch (e) {
       setUser(null);
     }
   }, [location.pathname, isOpen]);
 
   useEffect(() => {
     if (user && !socket) {
-      socket = io('http://localhost:5000');
+      socket = io('https://backend-production-b478c.up.railway.app');
     }
 
     const messageHandler = (msg: any) => {
@@ -67,7 +67,7 @@ const LiveChat = () => {
       if (activeCourseId && user && socket) {
         socket.emit('join_course_room', activeCourseId);
         try {
-          const res = await fetch(`http://localhost:5000/api/chat/${activeCourseId}`, {
+          const res = await fetch(`https://backend-production-b478c.up.railway.app/api/chat/${activeCourseId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -94,13 +94,13 @@ const LiveChat = () => {
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || !activeCourseId || !socket) return;
-    
+
     socket.emit('send_message', {
       courseId: activeCourseId,
       senderId: user._id || user.id,
       text: inputMessage
     });
-    
+
     setInputMessage('');
   };
 
@@ -110,16 +110,16 @@ const LiveChat = () => {
         <div className="flex flex-col glass-panel w-[350px] h-[500px] rounded-2xl shadow-card border border-border overflow-hidden animate-in slide-in-from-bottom-5">
           <div className="bg-primary p-4 flex justify-between items-center text-primary-foreground">
             <h3 className="font-semibold flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" /> 
+              <MessageCircle className="h-5 w-5" />
               Course Chat
             </h3>
             <button onClick={() => setIsOpen(false)} className="hover:bg-primary-foreground/20 p-1 rounded-md transition-colors">
               <X className="h-5 w-5" />
             </button>
           </div>
-          
+
           <div className="bg-secondary/50 p-2 border-b border-border">
-            <select 
+            <select
               className="w-full bg-background border border-border rounded p-2 text-sm text-foreground focus:ring-1 focus:ring-primary outline-none"
               value={activeCourseId || ''}
               onChange={(e) => setActiveCourseId(e.target.value)}
@@ -174,9 +174,9 @@ const LiveChat = () => {
           </div>
 
           <form onSubmit={handleSend} className="p-3 border-t border-border bg-background flex gap-2">
-            <input 
-              type="text" 
-              placeholder={activeCourseId ? "Type a message..." : "Select room first"} 
+            <input
+              type="text"
+              placeholder={activeCourseId ? "Type a message..." : "Select room first"}
               className="flex-1 rounded-full px-4 text-sm bg-secondary border-none focus:outline-none focus:ring-1 focus:ring-primary"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
@@ -189,7 +189,7 @@ const LiveChat = () => {
         </div>
       ) : (
         <div className="relative">
-          <button 
+          <button
             onClick={() => {
               setIsOpen(true);
               setUnreadCount(0); // Reset unread when opening

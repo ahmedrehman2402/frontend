@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Course, Instructor } from "@/data/courses";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://backend-production-b478c.up.railway.app/api";
 
 export const useCourses = () => {
   return useQuery<Course[]>({

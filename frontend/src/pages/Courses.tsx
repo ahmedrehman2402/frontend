@@ -14,7 +14,7 @@ const Courses = () => {
   const [loadingCats, setLoadingCats] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/categories")
+    fetch("https://backend-production-b478c.up.railway.app/api/categories")
       .then(res => res.json())
       .then(data => {
         const fetchCats = data.map((c: any) => c.name);
@@ -68,11 +68,10 @@ const Courses = () => {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                  activeCategory === cat
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${activeCategory === cat
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                     : "bg-slate-100 text-slate-600 hover:bg-primary/10 hover:text-primary"
-                }`}
+                  }`}
               >
                 {cat}
               </button>

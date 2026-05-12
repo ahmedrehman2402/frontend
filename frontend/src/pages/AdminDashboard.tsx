@@ -22,15 +22,15 @@ interface Course {
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<"users" | "courses">("users");
-  
+
   // User Management State
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newInst, setNewInst] = useState<{name: string, email: string, password: string, assignedCourses: string[]}>({ name: "", email: "", password: "", assignedCourses: [] });
+  const [newInst, setNewInst] = useState<{ name: string, email: string, password: string, assignedCourses: string[] }>({ name: "", email: "", password: "", assignedCourses: [] });
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  
+
   const [courses, setCourses] = useState<Course[]>([]);
-  const [categories, setCategories] = useState<{_id:string, name:string}[]>([]);
+  const [categories, setCategories] = useState<{ _id: string, name: string }[]>([]);
   const [newCatName, setNewCatName] = useState("");
   const [newCourse, setNewCourse] = useState({
     title: "", description: "", category: "", instructor: "", duration: "10 hours", lessons: 10, level: "Beginner"
@@ -54,15 +54,15 @@ const AdminDashboard = () => {
         navigate("/auth");
         return;
       }
-      
+
       const [usersRes, coursesRes, categoriesRes] = await Promise.all([
-        fetch("http://localhost:5000/api/admin/users", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://localhost:5000/api/courses"),
-        fetch("http://localhost:5000/api/categories")
+        fetch("https://backend-production-b478c.up.railway.app/api/admin/users", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("https://backend-production-b478c.up.railway.app/api/courses"),
+        fetch("https://backend-production-b478c.up.railway.app/api/categories")
       ]);
-      
+
       if (!usersRes.ok) throw new Error("Failed to fetch users");
-      
+
       setUsers(await usersRes.json());
       setCourses(await coursesRes.json());
       setCategories(await categoriesRes.json());
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
     if (!confirm("Are you sure you want to delete this user completely?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/admin/users/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -99,7 +99,7 @@ const AdminDashboard = () => {
     if (!editingUser) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/admin/users/${editingUser._id}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/admin/users/${editingUser._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(editingUser)
@@ -117,14 +117,14 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/admin/instructors", {
+      const res = await fetch("https://backend-production-b478c.up.railway.app/api/admin/instructors", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(newInst)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create instructor");
-      
+
       toast({ title: "Success", description: "Instructor created successfully" });
       setNewInst({ name: "", email: "", password: "", assignedCourses: [] });
       fetchData();
@@ -139,7 +139,7 @@ const AdminDashboard = () => {
     if (!newCatName.trim()) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/categories", {
+      const res = await fetch("https://backend-production-b478c.up.railway.app/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newCatName.trim() })
@@ -158,7 +158,7 @@ const AdminDashboard = () => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/categories/${id}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/categories/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -196,24 +196,24 @@ const AdminDashboard = () => {
       if (imageFile) {
         const formData = new FormData();
         formData.append("image", imageFile);
-        const uploadRes = await fetch("http://localhost:5000/api/upload", {
+        const uploadRes = await fetch("https://backend-production-b478c.up.railway.app/api/upload", {
           method: "POST",
           body: formData
         });
         if (!uploadRes.ok) throw new Error("Failed to upload image");
         const uploadData = await uploadRes.json();
-        thumbnailUrl = uploadData.image; 
+        thumbnailUrl = uploadData.image;
       }
 
       // 2. Create Course
       const coursePayload = { ...newCourse, thumbnail: thumbnailUrl };
-      const courseRes = await fetch("http://localhost:5000/api/courses", {
+      const courseRes = await fetch("https://backend-production-b478c.up.railway.app/api/courses", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(coursePayload)
       });
       if (!courseRes.ok) throw new Error("Failed to create course");
-      
+
       toast({ title: "Success", description: "Course created successfully" });
       setNewCourse({ title: "", description: "", category: "", instructor: "", duration: "10 hours", lessons: 10, level: "Beginner" });
       setImageFile(null);
@@ -229,7 +229,7 @@ const AdminDashboard = () => {
     if (!confirm("Are you sure you want to delete this course?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/courses/${id}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/courses/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -252,18 +252,18 @@ const AdminDashboard = () => {
       if (editImageFile) {
         const formData = new FormData();
         formData.append("image", editImageFile);
-        const uploadRes = await fetch("http://localhost:5000/api/upload", {
+        const uploadRes = await fetch("https://backend-production-b478c.up.railway.app/api/upload", {
           method: "POST",
           body: formData
         });
         if (!uploadRes.ok) throw new Error("Failed to upload image");
         const uploadData = await uploadRes.json();
-        thumbnailUrl = uploadData.image; 
+        thumbnailUrl = uploadData.image;
       }
 
       const updatedPayload = { ...editingCourse, thumbnail: thumbnailUrl };
 
-      const res = await fetch(`http://localhost:5000/api/courses/${editingCourse._id}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/courses/${editingCourse._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(updatedPayload)
@@ -290,15 +290,15 @@ const AdminDashboard = () => {
       </div>
 
       <div className="flex gap-4 mb-8">
-        <Button 
-          variant={activeTab === "users" ? "default" : "outline"} 
+        <Button
+          variant={activeTab === "users" ? "default" : "outline"}
           onClick={() => setActiveTab("users")}
           className="flex gap-2"
         >
           <Users className="h-4 w-4" /> Manage Users
         </Button>
-        <Button 
-          variant={activeTab === "courses" ? "default" : "outline"} 
+        <Button
+          variant={activeTab === "courses" ? "default" : "outline"}
           onClick={() => setActiveTab("courses")}
           className="flex gap-2"
         >
@@ -359,25 +359,25 @@ const AdminDashboard = () => {
               <form onSubmit={handleCreateInstructor} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Name</label>
-                  <Input required value={newInst.name} onChange={e => setNewInst({...newInst, name: e.target.value})} placeholder="Instructor Name" />
+                  <Input required value={newInst.name} onChange={e => setNewInst({ ...newInst, name: e.target.value })} placeholder="Instructor Name" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email</label>
-                  <Input required type="email" value={newInst.email} onChange={e => setNewInst({...newInst, email: e.target.value})} placeholder="instructor@example.com" />
+                  <Input required type="email" value={newInst.email} onChange={e => setNewInst({ ...newInst, email: e.target.value })} placeholder="instructor@example.com" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Password</label>
-                  <Input required type="password" value={newInst.password} onChange={e => setNewInst({...newInst, password: e.target.value})} placeholder="Secure password" />
+                  <Input required type="password" value={newInst.password} onChange={e => setNewInst({ ...newInst, password: e.target.value })} placeholder="Secure password" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Assign Courses</label>
-                  <select 
-                    multiple 
+                  <select
+                    multiple
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     value={newInst.assignedCourses}
                     onChange={e => {
                       const options = Array.from(e.target.selectedOptions);
-                      setNewInst({...newInst, assignedCourses: options.map(o => o.value)});
+                      setNewInst({ ...newInst, assignedCourses: options.map(o => o.value) });
                     }}
                   >
                     {courses.map(c => <option key={c._id} value={c._id}>{c.title}</option>)}
@@ -412,8 +412,8 @@ const AdminDashboard = () => {
                     <tr key={c._id} className="hover:bg-muted/50 transition-colors">
                       <td className="px-4 py-3 font-medium">
                         <div className="flex items-center gap-3">
-                          {c.thumbnail && <img src={`http://localhost:5000${c.thumbnail}`} alt="" className="w-10 h-10 rounded object-cover" />}
-                          {!c.thumbnail && <div className="w-10 h-10 bg-secondary rounded flex items-center justify-center"><BookOpen className="h-4 w-4 text-muted-foreground"/></div>}
+                          {c.thumbnail && <img src={`https://backend-production-b478c.up.railway.app${c.thumbnail}`} alt="" className="w-10 h-10 rounded object-cover" />}
+                          {!c.thumbnail && <div className="w-10 h-10 bg-secondary rounded flex items-center justify-center"><BookOpen className="h-4 w-4 text-muted-foreground" /></div>}
                           <span>{c.title}</span>
                         </div>
                       </td>
@@ -426,7 +426,7 @@ const AdminDashboard = () => {
                       <td className="px-4 py-3 text-right">
                         <Button variant="ghost" size="sm" className="mr-2 text-primary hover:bg-primary/10" onClick={() => {
                           setEditingCourse(c);
-                          setEditImagePreview(`http://localhost:5000${c.thumbnail}`);
+                          setEditImagePreview(`https://backend-production-b478c.up.railway.app${c.thumbnail}`);
                           setEditImageFile(null);
                         }}>
                           <Edit className="h-4 w-4" />
@@ -457,7 +457,7 @@ const AdminDashboard = () => {
                   <Input required value={newCatName} onChange={e => setNewCatName(e.target.value)} placeholder="New Category Name" className="h-9" />
                   <Button type="submit" size="sm" className="h-9">Add</Button>
                 </form>
-                
+
                 {categories.length > 0 && (
                   <div className="mt-4 border rounded-md p-3 bg-muted/30 max-h-48 overflow-y-auto">
                     <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Existing Categories</h3>
@@ -465,10 +465,10 @@ const AdminDashboard = () => {
                       {categories.map(c => (
                         <li key={c._id} className="flex items-center justify-between text-sm py-1 border-b last:border-0 border-border/50">
                           {c.name}
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6 text-destructive hover:bg-destructive/10" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-destructive hover:bg-destructive/10"
                             onClick={() => handleDeleteCategory(c._id)}
                           >
                             <Trash2 className="h-3 w-3" />
@@ -488,23 +488,23 @@ const AdminDashboard = () => {
               <form onSubmit={handleCreateCourse} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Title</label>
-                  <Input required value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} placeholder="e.g. Intro to Python" />
+                  <Input required value={newCourse.title} onChange={e => setNewCourse({ ...newCourse, title: e.target.value })} placeholder="e.g. Intro to Python" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Description</label>
-                  <Input required value={newCourse.description} onChange={e => setNewCourse({...newCourse, description: e.target.value})} placeholder="Course overview" />
+                  <Input required value={newCourse.description} onChange={e => setNewCourse({ ...newCourse, description: e.target.value })} placeholder="Course overview" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Category</label>
-                    <select required value={newCourse.category} onChange={e => setNewCourse({...newCourse, category: e.target.value})} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50">
+                    <select required value={newCourse.category} onChange={e => setNewCourse({ ...newCourse, category: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50">
                       <option value="" disabled>Select Category</option>
                       {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Level</label>
-                    <select required value={newCourse.level} onChange={e => setNewCourse({...newCourse, level: e.target.value})} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    <select required value={newCourse.level} onChange={e => setNewCourse({ ...newCourse, level: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                       <option value="Beginner">Beginner</option>
                       <option value="Intermediate">Intermediate</option>
                       <option value="Advanced">Advanced</option>
@@ -515,9 +515,9 @@ const AdminDashboard = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Instructor (Name)</label>
-                  <Input required value={newCourse.instructor} onChange={e => setNewCourse({...newCourse, instructor: e.target.value})} placeholder="e.g. Sarah Chen" />
+                  <Input required value={newCourse.instructor} onChange={e => setNewCourse({ ...newCourse, instructor: e.target.value })} placeholder="e.g. Sarah Chen" />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Thumbnail Image</label>
                   <div className="flex items-center gap-3">
@@ -542,9 +542,9 @@ const AdminDashboard = () => {
           <div className="w-full max-w-md rounded-2xl bg-card p-6 border border-border shadow-card">
             <h2 className="text-xl font-bold mb-4">Edit User</h2>
             <form onSubmit={handleEditUser} className="space-y-4">
-              <Input required value={editingUser.name} onChange={e => setEditingUser({...editingUser, name: e.target.value})} placeholder="Name" />
-              <Input required type="email" value={editingUser.email} onChange={e => setEditingUser({...editingUser, email: e.target.value})} placeholder="Email" />
-              <select className="w-full rounded-md border p-2" value={editingUser.role} onChange={e => setEditingUser({...editingUser, role: e.target.value})}>
+              <Input required value={editingUser.name} onChange={e => setEditingUser({ ...editingUser, name: e.target.value })} placeholder="Name" />
+              <Input required type="email" value={editingUser.email} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} placeholder="Email" />
+              <select className="w-full rounded-md border p-2" value={editingUser.role} onChange={e => setEditingUser({ ...editingUser, role: e.target.value })}>
                 <option value="student">Student</option>
                 <option value="instructor">Instructor</option>
               </select>
@@ -563,9 +563,9 @@ const AdminDashboard = () => {
           <div className="w-full max-w-md rounded-2xl bg-card p-6 border border-border shadow-card">
             <h2 className="text-xl font-bold mb-4">Edit Course</h2>
             <form onSubmit={handleEditCourse} className="space-y-4">
-              <Input required value={editingCourse.title} onChange={e => setEditingCourse({...editingCourse, title: e.target.value})} placeholder="Title" />
-              <Input required value={editingCourse.category} onChange={e => setEditingCourse({...editingCourse, category: e.target.value})} placeholder="Category" />
-              <Input required value={editingCourse.instructor} onChange={e => setEditingCourse({...editingCourse, instructor: e.target.value})} placeholder="Instructor Name" />
+              <Input required value={editingCourse.title} onChange={e => setEditingCourse({ ...editingCourse, title: e.target.value })} placeholder="Title" />
+              <Input required value={editingCourse.category} onChange={e => setEditingCourse({ ...editingCourse, category: e.target.value })} placeholder="Category" />
+              <Input required value={editingCourse.instructor} onChange={e => setEditingCourse({ ...editingCourse, instructor: e.target.value })} placeholder="Instructor Name" />
               <div className="space-y-2">
                 <label className="text-sm font-medium">New Thumbnail (Optional)</label>
                 <div className="flex items-center gap-3">

@@ -29,7 +29,7 @@ const InstructorDashboard = () => {
   const [attendances, setAttendances] = useState<Record<string, AttendanceRecord[]>>({});
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<{name: string, studentId: string, courseId: string, courseTitle: string} | null>(null);
+  const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<{ name: string, studentId: string, courseId: string, courseTitle: string } | null>(null);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -41,7 +41,7 @@ const InstructorDashboard = () => {
         navigate("/auth");
         return;
       }
-      const res = await fetch("http://localhost:5000/api/instructors/students", {
+      const res = await fetch("https://backend-production-b478c.up.railway.app/api/instructors/students", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -52,12 +52,12 @@ const InstructorDashboard = () => {
       }
       const data = await res.json();
       setStudents(data);
-      
+
       // Fetch attendance for each unique course
       const uniqueCourses = Array.from(new Set(data.map((s: any) => s.courseId)));
       const atts: Record<string, AttendanceRecord[]> = {};
       for (const cid of uniqueCourses) {
-        const attRes = await fetch(`http://localhost:5000/api/courses/${cid}/attendance`, {
+        const attRes = await fetch(`https://backend-production-b478c.up.railway.app/api/courses/${cid}/attendance`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (attRes.ok) {
@@ -82,11 +82,11 @@ const InstructorDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const newProgress = Math.min(100, currentProgress + 10);
-      const res = await fetch(`http://localhost:5000/api/instructors/students/${studentId}/progress`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/instructors/students/${studentId}/progress`, {
         method: "PATCH",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ courseId, progress: newProgress })
       });
@@ -102,7 +102,7 @@ const InstructorDashboard = () => {
     if (!confirm("Are you sure you want to remove this student from your course?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/instructors/students/${studentId}/course/${courseId}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/instructors/students/${studentId}/course/${courseId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -146,10 +146,10 @@ const InstructorDashboard = () => {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground font-medium">Filter Attendance:</span>
-          <Input 
-            type="date" 
-            value={selectedDate} 
-            onChange={(e) => setSelectedDate(e.target.value)} 
+          <Input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
             className="w-auto h-9"
           />
         </div>
@@ -237,7 +237,7 @@ const InstructorDashboard = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="ghost" size="sm" className="h-8 mr-2 text-primary hover:bg-primary/10" onClick={() => setSelectedStudentForHistory({name: s.name, studentId: s.studentId, courseId: s.courseId, courseTitle: s.courseTitle})}>
+                    <Button variant="ghost" size="sm" className="h-8 mr-2 text-primary hover:bg-primary/10" onClick={() => setSelectedStudentForHistory({ name: s.name, studentId: s.studentId, courseId: s.courseId, courseTitle: s.courseTitle })}>
                       <History className="h-4 w-4 mr-1" /> History
                     </Button>
                     <Button variant="outline" size="sm" className="mr-2 h-8" onClick={() => updateProgress(s.studentId, s.courseId, s.progress)}>
@@ -266,7 +266,7 @@ const InstructorDashboard = () => {
             <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => setSelectedStudentForHistory(null)}>
               <X className="h-4 w-4" />
             </Button>
-            
+
             <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
               <CalendarDays className="h-5 w-5 text-primary" /> Attendance History
             </h2>
@@ -304,7 +304,7 @@ const InstructorDashboard = () => {
                 </tbody>
               </table>
             </div>
-            
+
             <div className="mt-6 flex justify-end">
               <Button onClick={() => setSelectedStudentForHistory(null)}>Close</Button>
             </div>

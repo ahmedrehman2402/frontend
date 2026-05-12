@@ -24,17 +24,17 @@ const CourseDetail = () => {
   const isLoading = loadingCourses || loadingInstructors;
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [isMarkingAttendance, setIsMarkingAttendance] = useState(false);
-  
+
   const userStr = localStorage.getItem("user");
   let parsedUser = null;
   try {
     if (userStr && userStr !== "undefined") {
       parsedUser = JSON.parse(userStr);
     }
-  } catch(e) {}
+  } catch (e) { }
   const [user, setUser] = useState(parsedUser);
-  const isEnrolled = Array.isArray(user?.enrolledCourses) 
-    ? user.enrolledCourses.some((c: any) => (c.courseId?._id || c.courseId) === id) 
+  const isEnrolled = Array.isArray(user?.enrolledCourses)
+    ? user.enrolledCourses.some((c: any) => (c.courseId?._id || c.courseId) === id)
     : false;
 
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const CourseDetail = () => {
     const pingActiveStatus = async () => {
       const token = localStorage.getItem("token");
       if (token) {
-        fetch(`http://localhost:5000/api/users/ping`, {
+        fetch(`https://backend-production-b478c.up.railway.app/api/users/ping`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -57,10 +57,10 @@ const CourseDetail = () => {
         }).catch(err => console.error("Failed to ping active status:", err));
       }
     };
-    
+
     // Initial ping on load
     pingActiveStatus();
-    
+
     // Set up an interval to ping every 5 minutes (300000 ms)
     const interval = setInterval(pingActiveStatus, 5 * 60 * 1000);
     return () => clearInterval(interval);
@@ -75,18 +75,18 @@ const CourseDetail = () => {
         navigate("/auth");
         return;
       }
-      const res = await fetch(`http://localhost:5000/api/users/enroll/${id}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/users/enroll/${id}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to enroll");
-      
+
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
       }
-      
+
       toast({ title: "Success", description: "You have been enrolled!" });
       // Remove automatic navigation here so they stay on the course page and can mark attendance
     } catch (error: any) {
@@ -104,7 +104,7 @@ const CourseDetail = () => {
         toast({ title: "Authentication required", description: "Please log in to mark attendance.", variant: "destructive" });
         return;
       }
-      const res = await fetch(`http://localhost:5000/api/courses/${course.id}/attendance`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app/api/courses/${course.id}/attendance`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -213,7 +213,7 @@ const CourseDetail = () => {
                   {isMarkingAttendance ? "Marking..." : "Mark Today's Attendance"}
                 </Button>
               )}
-              
+
               <Button
                 size="lg"
                 variant="outline"

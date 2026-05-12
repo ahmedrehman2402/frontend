@@ -31,8 +31,8 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      
-      const res = await fetch('http://localhost:5000/api/ai/generate-quiz', {
+
+      const res = await fetch('https://backend-production-b478c.up.railway.app/api/ai/generate-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to generate quiz');
-      
+
       if (!data.quiz || !Array.isArray(data.quiz) || data.quiz.length === 0) {
         throw new Error("System returned malformed quiz structure.");
       }
@@ -81,7 +81,7 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
 
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/users/quiz/${courseId}`, {
+      await fetch(`https://backend-production-b478c.up.railway.app/api/users/quiz/${courseId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
       });
       // We rely on the parent updating state or re-fetching dashboard
     } catch (err) {
-       console.error("Failed to save quiz score", err);
+      console.error("Failed to save quiz score", err);
     }
   };
 
@@ -121,7 +121,7 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
         <div className="w-full max-w-2xl rounded-2xl bg-card p-8 border border-border shadow-card">
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-display text-xl font-bold text-primary flex items-center gap-2">
-               <Bot className="h-5 w-5"/> Interactive Quiz Active
+              <Bot className="h-5 w-5" /> Interactive Quiz Active
             </h2>
             <span className="text-sm font-medium text-muted-foreground">Question {currentQuestionIndex + 1} of {questions.length}</span>
           </div>
@@ -130,9 +130,9 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
 
           <div className="space-y-3 mb-8">
             {q.options.map((option, idx) => (
-              <Button 
-                key={idx} 
-                variant={selectedAnswer === idx ? 'default' : 'outline'} 
+              <Button
+                key={idx}
+                variant={selectedAnswer === idx ? 'default' : 'outline'}
                 className="w-full justify-start h-auto p-4 text-left font-normal"
                 onClick={() => setSelectedAnswer(idx)}
               >
@@ -142,10 +142,10 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
           </div>
 
           <div className="flex justify-end gap-3">
-             <Button variant="ghost" onClick={onClose}>Cancel</Button>
-             <Button disabled={selectedAnswer === null} onClick={handleNext}>
-                {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next Question'}
-             </Button>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button disabled={selectedAnswer === null} onClick={handleNext}>
+              {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next Question'}
+            </Button>
           </div>
         </div>
       </div>
@@ -159,8 +159,8 @@ const AIQuizModal: React.FC<AIQuizModalProps> = ({ courseId, courseTitle, catego
         <Sparkles className="mx-auto h-12 w-12 text-accent mb-4" />
         <h2 className="font-display text-2xl font-bold mb-2">Interactive Quiz Generator</h2>
         <p className="mb-6 text-sm text-muted-foreground leading-relaxed">
-          Ready to test your knowledge on <br/> <strong className="text-foreground">{courseTitle}</strong>?
-          <br/><br/>
+          Ready to test your knowledge on <br /> <strong className="text-foreground">{courseTitle}</strong>?
+          <br /><br />
           Our advanced system will construct a dynamic 5-question test covering course materials.
         </p>
 

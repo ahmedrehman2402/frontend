@@ -22,7 +22,7 @@ const ProfileSettings = () => {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/users/profile", {
+        const res = await fetch("https://backend-production-b478c.up.railway.app/api/users/profile", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -48,7 +48,7 @@ const ProfileSettings = () => {
     e.preventDefault();
     setError("");
     setSaving(true);
-    
+
     try {
       const token = localStorage.getItem("token");
       const payload: any = { name: formData.name, email: formData.email };
@@ -56,7 +56,7 @@ const ProfileSettings = () => {
         payload.password = formData.password;
       }
 
-      const res = await fetch("http://localhost:5000/api/users/profile", {
+      const res = await fetch("https://backend-production-b478c.up.railway.app/api/users/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ const ProfileSettings = () => {
         if (stored && stored !== "undefined") {
           oldUser = JSON.parse(stored);
         }
-      } catch(e) {}
+      } catch (e) { }
       localStorage.setItem("user", JSON.stringify({ ...oldUser, name: data.name, email: data.email }));
 
       toast({

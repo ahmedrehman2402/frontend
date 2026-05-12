@@ -22,11 +22,11 @@ const Auth = () => {
     setLoading(true);
     try {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-      const payload = isLogin 
+      const payload = isLogin
         ? { email: formData.email, password: formData.password }
         : formData;
 
-      const res = await fetch(`http://localhost:5000${endpoint}`, {
+      const res = await fetch(`https://backend-production-b478c.up.railway.app${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -45,7 +45,7 @@ const Auth = () => {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      
+
       if (data.user.role === 'admin') {
         navigate("/admin");
       } else if (data.user.role === 'instructor') {
@@ -72,8 +72,8 @@ const Auth = () => {
             {isLogin ? (isInstructorLogin ? "Instructor Login" : "Welcome Back!") : "Create an Account"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isLogin 
-              ? (isInstructorLogin ? "Sign in to access your instructor dashboard and manage students." : "Sign in to access your dashboard and courses.") 
+            {isLogin
+              ? (isInstructorLogin ? "Sign in to access your instructor dashboard and manage students." : "Sign in to access your dashboard and courses.")
               : "Join thousands of learners entirely for free."}
           </p>
         </div>
@@ -118,7 +118,7 @@ const Auth = () => {
               <Button type="submit" className="w-full bg-cta-gradient font-bold" disabled={loading}>
                 {loading ? "Please wait..." : isLogin ? (isInstructorLogin ? "Sign In as Instructor" : "Sign In") : "Sign Up"}
               </Button>
-              
+
               {isLogin && !isInstructorLogin && (
                 <Button type="button" variant="outline" className="w-full border-primary/20 hover:bg-primary/5" onClick={() => setIsInstructorLogin(true)}>
                   Login as Instructor
